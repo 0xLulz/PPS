@@ -12,4 +12,4 @@ Call the `run()` function from the 'GetCurrent' class
 GetCurrent.run()
 ```
 
-Credit to original owner (vSync)[https://github.com/xvSync]
+Credit to original owner [vSync](https://github.com/xvSync)
