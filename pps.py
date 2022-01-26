@@ -17,12 +17,6 @@ class PPS:
         PPS.new_rx = rx
         PPS.new_tx = tx
 
-    # pub fn (mut p PPS) get_pps() int {
-    #     p.final_rx = p.old_rx - p.new_rx
-    #     p.final_tx = p.old_tx - p.new_tx
-    #     p.pps = p.final_tx - p.final_rx
-    #     return p.pps
-    # }
     def GetPPS():
         final_rx = PPS.old_rx - PPS.new_rx
         final_tx = PPS.old_tx - PPS.new_tx
