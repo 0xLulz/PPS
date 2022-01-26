@@ -1,44 +1,48 @@
-import os, sys, time, subprocess, py
+import sys, os, time, subprocess
 
-class GetCurrent:
+## import pps (include this same script in here)
+
+class PPS:
     old_rx = 0
     old_tx = 0
     new_rx = 0
     new_tx = 0
-    final_rx = 0
-    final_tx = 0
     pps = 0
+
     def set_old(rx, tx):
-        GetCurrent.old_rx = rx
-        GetCurrent.old_tx = tx
+        PPS.old_rx = rx
+        PPS.old_tx = tx
 
     def set_new(rx, tx):
-        GetCurrent.new_rx = rx
-        GetCurrent.new_tx = tx
+        PPS.new_rx = rx
+        PPS.new_tx = tx
 
-    def get_pps():
-        GetCurrent.final_rx = GetCurrent.old_rx - GetCurrent.new_rx
-        GetCurrent.final_tx = GetCurrent.old_tx - GetCurrent.new_tx
-        GetCurrent.pps = GetCurrent.final_tx - GetCurrent.final_rx
+    # pub fn (mut p PPS) get_pps() int {
+    #     p.final_rx = p.old_rx - p.new_rx
+    #     p.final_tx = p.old_tx - p.new_tx
+    #     p.pps = p.final_tx - p.final_rx
+    #     return p.pps
+    # }
+    def GetPPS():
+        final_rx = PPS.old_rx - PPS.new_rx
+        final_tx = PPS.old_tx - PPS.new_tx
+        PPS.pps = final_tx - final_rx
+        return PPS.pps
 
-    def Interface():
-        WiFi_Interface = subprocess.getoutput("ifconfig").split()[0]
-        WiFi_Interface = WiFi_Interface.strip().replace(":", "")
-        return WiFi_Interface
-    
-    def tx_packets():
-        Interface = GetCurrent.Interface()
-        return (subprocess.getoutput(f"cat /sys/class/net/{str(Interface)}/statistics/tx_packets"))
-    
-    def rx_packets():
-        Interface = GetCurrent.Interface()
-        return (subprocess.getoutput(f"cat /sys/class/net/{str(Interface)}/statistics/rx_packets"))
+    def GetInterface():
+        return subprocess.getoutput("ifconfig").split(":")[0]
+
+    def RxPackets():
+        return subprocess.getoutput("sudo cat /sys/class/net/{0}/statistics/rx_packets".format(PPS.GetInterface()))
+
+    def TxPackets():
+        return subprocess.getoutput("sudo cat /sys/class/net/{0}/statistics/tx_packets".format(PPS.GetInterface()))
 
     def run():
         while(1):
-            GetCurrent.set_old(GetCurrent.rx_packets(), GetCurrent.tx_packets())
+            PPS.set_old(int(PPS.RxPackets()), int(PPS.TxPackets()))
             time.sleep(1)
-            GetCurrent.set_new(GetCurrent.rx_packets(), GetCurrent.tx_packets())
-            current_pps = GetCurrent.get_pps()
-            print(current_pps)
-
+            PPS.set_new(int(PPS.RxPackets()), int(PPS.TxPackets()))
+            final_pps = PPS.GetPPS()
+            print("\r   ", end="")
+            print("\r{0}".format(final_pps), end="")
